@@ -3,17 +3,16 @@ package tp
 import (
 	"bytes"
 	"encoding/json"
+	"log"
 	"net/http"
 	"os"
 	"strings"
-
-	"github.com/davecgh/go-spew/spew"
 )
 
 type triviaQuestion struct {
-	question string
-	answer   string
-	category string
+	Question string `json:"question"`
+	Answer   string `json:"answer"`
+	Category string `json:"category"`
 }
 
 var (
@@ -36,40 +35,32 @@ func TriviaParser(command string) triviaQuestion {
 	answerText := splitCommand[0]
 	categoryText := splitCommand[1]
 	s := triviaQuestion{
-		question: strings.Title(strings.TrimSpace(questionText[0])),
-		answer:   strings.Title(strings.TrimSpace(answerText)),
-		category: strings.Title(strings.TrimSpace(categoryText)),
+		Question: strings.Title(strings.TrimSpace(questionText[0])),
+		Answer:   strings.Title(strings.TrimSpace(answerText)),
+		Category: strings.Title(strings.TrimSpace(categoryText)),
 	}
 	return s
 }
 
-func SubmitQuestion(tq triviaQuestion) error {
-	// m, err := json.Marshal(tq)
-	// if err != nil {
-	// 	return err
-	// }
-	u := triviaQuestion{question: "test", answer: "answer", category: "test"}
-	b := new(bytes.Buffer)
-	json.NewEncoder(b).Encode(u)
+func SubmitQuestion(tq triviaQuestion) {
+	m, err := json.Marshal(tq)
+	if err != nil {
+		log.Println(err)
+	}
 
 	client := &http.Client{}
 	req, err := http.NewRequest("POST",
 		api,
-		b)
-	req.Header.Set("Content-Type", "application/json")
+		bytes.NewBuffer(m),
+	)
+
 	resp, err := client.Do(req)
-	spew.Dump(resp)
 	if err != nil {
-		return err
+		log.Println(err)
 	}
-	defer resp.Body.Close()
-	spew.Dump(resp.Body)
-	// defer func() error {
-	// 	if resp != nil && resp.Body != nil {
-	// 		resp.Body.Close()
-	// 		return nil
-	// 	}
-	// 	return errors.New("Error body of response is nil")
-	// }()
-	return nil
+	defer func() {
+		if resp != nil && resp.Body != nil {
+			resp.Body.Close()
+		}
+	}()
 }

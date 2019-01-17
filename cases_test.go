@@ -8,16 +8,6 @@ var testCases = []struct {
 	{
 		name:     "Basic Format",
 		command:  ":q Question :a Answer :c Category",
-		expected: triviaQuestion{question: "Question", answer: "Answer", category: "Category"},
-	},
-	{
-		name:     "White space",
-		command:  ":q  Question :a  Answer :c    Category",
-		expected: triviaQuestion{question: "Question", answer: "Answer", category: "Category"},
-	},
-	{
-		name:     "Different Casing",
-		command:  ":Q  Question :a  Answer :C    Category",
-		expected: triviaQuestion{question: "Question", answer: "Answer", category: "Category"},
+		expected: triviaQuestion{Question: "Question", Answer: "Answer", Category: "Category"},
 	},
 }

@@ -1,7 +1,13 @@
 package tp
 
 import (
+	"bytes"
+	"encoding/json"
+	"net/http"
+	"os"
 	"strings"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 type triviaQuestion struct {
@@ -11,7 +17,7 @@ type triviaQuestion struct {
 }
 
 var (
-	keys = [3]string{":q", ":a", ":c"}
+	api = os.Getenv("API_ENDPOINT")
 )
 
 func splitTextFromSymbol(str, sym string) []string {
@@ -35,4 +41,35 @@ func TriviaParser(command string) triviaQuestion {
 		category: strings.Title(strings.TrimSpace(categoryText)),
 	}
 	return s
+}
+
+func SubmitQuestion(tq triviaQuestion) error {
+	// m, err := json.Marshal(tq)
+	// if err != nil {
+	// 	return err
+	// }
+	u := triviaQuestion{question: "test", answer: "answer", category: "test"}
+	b := new(bytes.Buffer)
+	json.NewEncoder(b).Encode(u)
+
+	client := &http.Client{}
+	req, err := http.NewRequest("POST",
+		api,
+		b)
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := client.Do(req)
+	spew.Dump(resp)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	spew.Dump(resp.Body)
+	// defer func() error {
+	// 	if resp != nil && resp.Body != nil {
+	// 		resp.Body.Close()
+	// 		return nil
+	// 	}
+	// 	return errors.New("Error body of response is nil")
+	// }()
+	return nil
 }

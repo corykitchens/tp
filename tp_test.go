@@ -15,3 +15,11 @@ func TestTriviaParser(t *testing.T) {
 		})
 	}
 }
+
+func TestSubmitQuestion(t *testing.T) {
+	tq := triviaQuestion{question: "My Question", answer: "My answer", category: "My category"}
+	err := SubmitQuestion(tq)
+	if err != nil {
+		t.Errorf("Received error %v", err)
+	}
+}
